@@ -6,11 +6,11 @@ title:  Team
 # {{ page.title }}
 
 
-## USER 1
+## Sahil Railkar
 ***UCI Net ID***: srailkar
 
-## USER 2
+## Esha Prasad
 ***UCI Net ID***: eprasad
 
-## USER 3
+## Parmik Mehra
 ***UCI Net ID***: parmikm
