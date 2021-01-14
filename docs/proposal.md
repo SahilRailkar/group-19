@@ -13,4 +13,4 @@ The goal of our project is to have an agent successfully reach the finish line w
 
 
 ## Appointment with the Instructor
-
+3:00pm - 3:15pm, Wednesday, January 20, 2021
