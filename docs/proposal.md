@@ -4,7 +4,7 @@ title:  Proposal
 ---
 
 ## Summary of the Project
-The goal of our project is to have an agent successfully reach the end of a track while avoiding obstacles and collecting gold nuggets to maximize its score. The agent will constantly be moving forward at a speed of 1 block/second. The agent will also encounter three types of obstacles which can be avoided by either moving 1 block left or right (3 block wide path), crouching, or jumping. The agent will use its view to detect these obstacles and choose the correct action. The agent has two lives. If the agent runs into an obstacle, it will lose a life and after two hits, it will die :(
+The goal of our project is to have an agent successfully reach the end of a track while avoiding obstacles and collecting gold nuggets to maximize its score. This idea is based on the game Subway Surfers. The agent will constantly be moving forward at a speed of 1 block/second. The agent will also encounter three types of obstacles which can be avoided by either moving 1 block left or right (3 block wide path), crouching, or jumping. The agent will use its view to detect these obstacles and choose the correct action. The agent has two lives. If the agent runs into an obstacle, it will lose a life and after two hits, it will die :(
 
 ## AI/ML Algorithms
 We will use object detection and deep reinforcement learning with neural networks for this project.
