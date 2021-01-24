@@ -16,7 +16,7 @@ For our approach, the sanity cases will be if the agent can choose to collect go
 
 We will be generating our tracks to force our agent into making a strategic decision to avoid current and future obstacles as well as maximizing its overall score.
 
-![image](./track.png =50x)
+<img src="./track.png" alt="drawing" width="200px"/>
 
 For example, in this track, the agent should choose to switch to the left path rather than the right path though no obstacle exists directly ahead of it in either path.
 
