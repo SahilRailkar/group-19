@@ -2,8 +2,7 @@
 layout: default
 title:  Home
 ---
-
-<div style="text-align: center"><img src="./subway-surfers.jpg" alt="subway-surfers" width="800px"/></div>
+<img src="./subway-surfers.jpg" alt="subway-surfers" width="600px"/>
 
 ## Welcome to Minecraft Surfers!
 
@@ -11,6 +10,6 @@ title:  Home
 https://github.com/SahilRailkar/minecraft-surfers
 
 ## Reports:
-• [Proposal](proposal.html)
-• [Status](status.html)
-• [Final](final.html)
+- [Proposal](proposal.html)
+- [Status](status.html)
+- [Final](final.html)
