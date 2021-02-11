@@ -16,6 +16,10 @@ import gym, ray
 from gym.spaces import Discrete, Box
 from ray.rllib.agents import ppo
 
+patterns = []
+with open('patterns.txt', 'r') as file:
+    for line in file:
+        patterns.append(eval(line))
 
 class MinecraftSurfer(gym.Env):
 
@@ -33,14 +37,12 @@ class MinecraftSurfer(gym.Env):
         self.action_dict = {
             0: 'strafe -1',
             1: 'strafe 0',
-            2: 'strafe 1',
-            3: 'crouch 1',
-            4: 'jump 1'
+            2: 'strafe 1'
         }
 
         # Rllib Parameters
         self.action_space = Discrete(len(self.action_dict))
-        self.observation_space = Box(0, 1, (self.obs_size * self.track_width * self.height, ), dtype=np.float32)
+        self.observation_space = Box(0, 3, (self.obs_size * self.track_width * self.height + 1, ), dtype=np.float32)
 
         # Malmo Parameters
         self.agent_host = MalmoPython.AgentHost()
@@ -109,14 +111,16 @@ class MinecraftSurfer(gym.Env):
         if not self.moving:
             self.agent_host.sendCommand("move 0.5")
             time.sleep(.2)
+            # self.moving = True
 
         # Get Action
         command = self.action_dict[action]
         if ((command == 'strafe -1' and self.allow_left) or (command == 'strafe 1' and self.allow_right)):
             self.agent_host.sendCommand(command)
+            print(command)
             time.sleep(.2)
-            self.agent_host.sendCommand("strafe 0")
-            time.sleep(.2)
+            # self.agent_host.sendCommand("strafe 0")
+            # time.sleep(.2)
 
         # if (command == "jump 1"):
         #     self.agent_host.sendCommand(command)
@@ -161,13 +165,8 @@ class MinecraftSurfer(gym.Env):
                 my_xml += "<DrawBlock x='{}' y='1' z='{}' type='gold_block'/>\n".format(x, z)
         my_xml = my_xml[:-1]
 
-        patterns = []
-        with open('patterns.txt', 'r') as file:
-            for line in file:
-                patterns.append(eval(line))
-
         pattern = []
-        for ind in choice([i for i in range(80)], size=4):
+        for ind in choice([i for i in range(len(patterns))], size=4):
             pattern += patterns[ind]
 
         for z in range(self.track_length):
@@ -228,13 +227,13 @@ class MinecraftSurfer(gym.Env):
                             <RewardForReachingPosition>''' + \
                             my_rewards + \
                             '''</RewardForReachingPosition>
-                            <ContinuousMovementCommands/>
+                            <DiscreteMovementCommands/>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
                             <ObservationFromGrid>
-                                <Grid name="floorAll">
+                                <Grid name="floorAll" absoluteCoords="true">
                                     <min x="0" y="2" z="0"/>
-                                    <max x="2" y="2" z="9"/>
+                                    <max x="2" y="2" z="99"/>
                                 </Grid>
                             </ObservationFromGrid>
                             <AgentQuitFromReachingCommandQuota total="'''+str(self.max_episode_steps * 3)+'''" />
@@ -251,17 +250,17 @@ class MinecraftSurfer(gym.Env):
                 </Mission>'''
 
     def init_malmo(self):
-        my_mission = MalmoPython.MissionSpec(self.get_mission_xml(), True)
-        my_mission_record = MalmoPython.MissionRecordSpec()
-        my_mission.requestVideo(800, 500)
-        my_mission.setViewpoint(1)
-
-        max_retries = 3
-        my_clients = MalmoPython.ClientPool()
-        my_clients.add(MalmoPython.ClientInfo('127.0.0.1', 10000)) # add Minecraft machines here as available
-
+        max_retries = 10
         for retry in range(max_retries):
             try:
+                my_mission = MalmoPython.MissionSpec(self.get_mission_xml(), True)
+                my_mission_record = MalmoPython.MissionRecordSpec()
+                my_mission.requestVideo(800, 500)
+                my_mission.setViewpoint(1)
+
+                my_clients = MalmoPython.ClientPool()
+                my_clients.add(MalmoPython.ClientInfo('127.0.0.1', 10000)) # add Minecraft machines here as available
+
                 self.agent_host.startMission( my_mission, my_clients, my_mission_record, 0, 'MinecraftSurfer' )
                 break
             except RuntimeError as e:
@@ -281,7 +280,7 @@ class MinecraftSurfer(gym.Env):
         return world_state
 
     def get_observation(self, world_state):
-        obs = np.zeros((self.obs_size * self.track_width * self.height, ))
+        obs = np.zeros((self.obs_size * self.track_width * self.height + 1, ))
 
         allow_left = False
         allow_right = False
@@ -298,15 +297,27 @@ class MinecraftSurfer(gym.Env):
                 msg = world_state.observations[-1].text
                 observations = json.loads(msg)
                 # Get observation
-                grid = observations['floorAll']
+                try:
+                    grid = observations['floorAll']
+                except Exception:
+                    continue
 
+                grid_index = int(observations['ZPos']) * 3
+                grid = grid[grid_index:grid_index+30]
                 for i, x in enumerate(grid):
                     obs[i] = x == 'emerald_block'
 
                 allow_left = observations['XPos'] < 2
                 allow_right = observations['XPos'] > 1
                 ZPos = observations["ZPos"]
-                
+
+                if observations["XPos"] > 3:
+                    observations["XPos"] = 3
+                if observations["XPos"] < 0:
+                    observations["XPos"] = 0
+
+                obs[-1] = observations["XPos"]
+                print(obs)
                 break
 
         return obs, allow_left, allow_right, ZPos
