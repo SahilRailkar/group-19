@@ -3,7 +3,7 @@ layout: default
 title:  Home
 ---
 
-<div style="text-align: center"><img src="./subway-surfers.jpg" alt="subway-surfers" width="200px"/></div>
+<div style="text-align: center"><img src="./subway-surfers.jpg" alt="subway-surfers" width="800px"/></div>
 
 ## Welcome to Minecraft Surfers!
 
