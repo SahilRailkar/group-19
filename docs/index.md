@@ -10,7 +10,7 @@ title:  Home
     </p>
     <img src="./agent.png" alt="agent" width="400px"/>
     <h2> Source code: </h2>
-    <p>https://github.com/SahilRailkar/minecraft-surfers</p>
+    <p><a href="https://github.com/SahilRailkar/minecraft-surfers">https://github.com/SahilRailkar/minecraft-surfers</a></p>
     <h2>Reports</h2>
     <p>
     - <a href="proposal.html">Proposal</a> 
