@@ -109,7 +109,7 @@ class MinecraftSurfer(gym.Env):
             info: <dict> dictionary of extra information
         """
         if not self.moving:
-            self.agent_host.sendCommand("move 0.5")
+            self.agent_host.sendCommand("move 1")
             time.sleep(.2)
             # self.moving = True
 
@@ -117,7 +117,6 @@ class MinecraftSurfer(gym.Env):
         command = self.action_dict[action]
         if ((command == 'strafe -1' and self.allow_left) or (command == 'strafe 1' and self.allow_right)):
             self.agent_host.sendCommand(command)
-            print(command)
             time.sleep(.2)
             # self.agent_host.sendCommand("strafe 0")
             # time.sleep(.2)
@@ -151,7 +150,6 @@ class MinecraftSurfer(gym.Env):
         reward = 0
         for r in world_state.rewards:
             reward += r.getValue()
-            print(reward)
         self.episode_return += reward
 
         return self.obs, reward, done, dict()
@@ -317,7 +315,6 @@ class MinecraftSurfer(gym.Env):
                     observations["XPos"] = 0
 
                 obs[-1] = observations["XPos"]
-                print(obs)
                 break
 
         return obs, allow_left, allow_right, ZPos
@@ -354,5 +351,11 @@ if __name__ == '__main__':
         'num_workers': 0            # We aren't using parallelism
     })
 
-    while True:
-        print(trainer.train())
+    if len(sys.argv) == 2:
+        trainer.load_checkpoint('./model/checkpoint-' + sys.argv[1])
+
+    try:
+        while True:
+            print(trainer.train())
+    except KeyboardInterrupt:
+        trainer.save_checkpoint('./model')
