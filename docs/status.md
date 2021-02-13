@@ -19,6 +19,10 @@ Initially, we tried a Keras convolutional neural network (CNN) using Q-learning,
 
 We then switched to using RLlib’s base neural network with the Proximal Policy Optimization (PPO) reinforcement learning algorithm. The reward function for this algorithm was:
 
+<div style="text-align: center;">
+    <img src="./function.png" alt="continuous-agent" width="300px"/>
+</div>
+
 The agent’s action space consists of three possible actions, “strafe -1” (move left), “strafe 0” (stay in current position), and “strafe 1” (move right). The observation space consists of a 10 x 3 grid which represents the agent’s current row and the 9 rows ahead of it. We then had to decide on whether to send the agent commands discretely or continuously.
 
 Giving the agent continuous movement commands caused it to move inconsistently. For example, sending the agent “strafe 1” would result in it strafing 0.7 blocks to the right rather than 1 block. This inconsistency was problematic because occasionally the agent would strafe to the middle of two blocks causing its shoulder to hit an obstacle even though it believed it was safe in the middle of the lane it strafed to. To solve this issue, we passed the agent its x-position so that it could learn to strafe all the way to the middle of the next lane. Unfortunately, the agent was unable to learn to strafe completely so we switched to giving the agent discrete movement commands for the prototype. Discrete movement commands guaranteed that the agent would always be in the center of a lane and never unintentionally hit a wall.
