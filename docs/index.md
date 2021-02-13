@@ -3,12 +3,12 @@ layout: default
 title:  Home
 ---
 
-<img src="./gameplay.jpeg" alt="gameplay" width="800px"/>
-<img src="./subway-surfers.jpg" alt="subway-surfers" width="400px"/>
-<img src="./subway-surfers-1.jpg" alt="subway-surfers-1" width="400px"/>
+<div style="text-align: center;"><img src="./subway-surfers.jpg" alt="subway-surfers" width="400px"/></div>
 
 ## Welcome to Minecraft Surfers!
 Our team is building an agent which can learn to play a modified version of Subway Surfers rebuilt in Minecraft. Similar to Jake from Subway Surfers, Steve has to dodge obstacles along a track while picking up gold nuggets and occasionally, potions. Steve has the ability to switch lanes, jump, and crouch to avoid obstacles and successfully reach the end of the track.
+
+<div style="text-align: center;"><img src="./agent.png" alt="agent" width="400px"/></div>
 
 ## Source code: 
 https://github.com/SahilRailkar/minecraft-surfers
