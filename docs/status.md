@@ -28,21 +28,21 @@ For the quantitative results, we mapped the rewards the agent received over time
 
 <div style="text-align: center;">
     <img src="./returns.png" alt="continuous-agent" width="600px"/>
-    <h4>Figure 1: Continuous Agent</h2>
+    <h4>Figure 1: Continuous Agent</h4>
 </div>
 
 As you can see from the previous graph, the continuous agent did not improve even after 10000 steps. This was primarily due to the fact that the continuous agent would occasionally run into a wall with its shoulder after having strafed to avoid it. This action may have led it to believe that avoiding obstacles was not necessarily beneficial behavior. 
 
 <div style="text-align: center;">
     <img src="./returns-d.png" alt="discrete-agent" width="600px"/>
-    <h4>Figure 2: Discrete Agent</h2>
+    <h4>Figure 2: Discrete Agent</h4>
 </div>
 
 On the other hand, the discrete agent was able to complete almost every track successfully by the end of its training. The experiment with the discrete agent showcases that it is possible for an agent to learn to avoid obstacles with the PPO reinforcement learning algorithm and provides a baseline for us to improve our continuous agent. We still want to maneuver to using a continuous agent because a discrete agent does not have all of the functionalities a continuous agent does (e.g. crouching and strafing while moving forward).
 
 <div style="text-align: center;">
     <img src="./minecraft-surfers.gif" alt="subway-surfers" width="600px"/>
-    <h4>Figure 3: Discrete Agent on Track</h2>
+    <h4>Figure 3: Discrete Agent on Track</h4>
 </div>
 
 For the qualitative results, from the GIF above, we can see the agent trying to make decisions such as strafing right to avoid obstacles directly ahead of it. In this situation, the agent is also able to reach the end of the track.
