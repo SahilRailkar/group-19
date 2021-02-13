@@ -20,7 +20,7 @@ Initially, we tried a Keras convolutional neural network (CNN) using Q-learning,
 We then switched to using RLlib’s base neural network with the Proximal Policy Optimization (PPO) reinforcement learning algorithm. The reward function for this algorithm was:
 
 <div style="text-align: center;">
-    <img src="./function.png" alt="continuous-agent" width="300px"/>
+    <img src="./function.png" alt="continuous-agent" width="600px"/>
 </div>
 
 The agent’s action space consists of three possible actions, “strafe -1” (move left), “strafe 0” (stay in current position), and “strafe 1” (move right). The observation space consists of a 10 x 3 grid which represents the agent’s current row and the 9 rows ahead of it. We then had to decide on whether to send the agent commands discretely or continuously.
