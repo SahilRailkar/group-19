@@ -237,7 +237,7 @@ class MinecraftSurfer(gym.Env):
                             <RewardForReachingPosition>''' + \
                             my_rewards + \
                             '''</RewardForReachingPosition>
-                            <RewardForSendingCommand reward='-2' distribution='jump'/>
+                            <RewardForSendingCommand reward='-1'/>
                             <ContinuousMovementCommands/>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
