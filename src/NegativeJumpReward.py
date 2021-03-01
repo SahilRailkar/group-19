@@ -64,6 +64,10 @@ class MinecraftSurfer(gym.Env):
         self.zPositions = []
         self.curZPos = 0
         self.moving = False
+        self.averageJumpsOverDitches = [0]
+        self.jumpsOverDitches = 0
+        self.numDitchesEncountered = 0
+        self.checkCommand = False
 
     def reset(self):
         """
@@ -74,8 +78,13 @@ class MinecraftSurfer(gym.Env):
         """
 
         self.moving = False
-
         self.zPositions.append(self.curZPos)
+        if self.numDitchesEncountered:
+            self.averageJumpsOverDitches.append(self.jumpsOverDitches/self.numDitchesEncountered)
+        self.jumpsOverDitches = 0
+        self.numDitchesEncountered = 0
+        self.checkCommand = False
+        print(self.averageJumpsOverDitches)
 
         # Reset Malmo
         world_state = self.init_malmo()
@@ -93,7 +102,7 @@ class MinecraftSurfer(gym.Env):
             self.log_returns()
 
         # Get Observation
-        self.obs, self.allow_left, self.allow_right, self.curZPos = self.get_observation(world_state)
+        self.obs, self.allow_left, self.allow_right, self.curZPos, XPos = self.get_observation(world_state)
 
         return self.obs
 
@@ -127,6 +136,9 @@ class MinecraftSurfer(gym.Env):
         time.sleep(.1)
 
         if action[1]:
+            if self.checkCommand:
+                self.jumpsOverDitches += 1
+                self.checkCommand = False
             self.agent_host.sendCommand("jump 1")
             time.sleep(.2)
             self.agent_host.sendCommand("jump 0")
@@ -143,9 +155,13 @@ class MinecraftSurfer(gym.Env):
         world_state = self.agent_host.getWorldState()
         for error in world_state.errors:
             print("Error:", error.text)
-        self.obs, self.allow_left, self.allow_right, curZPos = self.get_observation(world_state)
-        if (curZPos):
+        self.obs, self.allow_left, self.allow_right, curZPos, curXPos = self.get_observation(world_state)
+        if curZPos:
             self.curZPos = curZPos
+        if curXPos:
+            if self.obs[3 + int(curXPos)]:
+                self.checkCommand = True
+                self.numDitchesEncountered += 1
 
         # Get Done
         done = not world_state.is_mission_running 
@@ -154,14 +170,11 @@ class MinecraftSurfer(gym.Env):
         reward = 0
         for r in world_state.rewards:
             reward += r.getValue()
-            print(reward)
         self.episode_return += reward
 
         return self.obs, reward, done, dict()
 
     def get_mission_xml(self):
-        
-
         my_xml = ''
         for x in range(3):
             for z in range(0, self.track_length):
@@ -181,15 +194,16 @@ class MinecraftSurfer(gym.Env):
                 elif pattern[z][x] == 2:
                     my_xml += "<DrawBlock x='{}' y='1' z='{}' type='air'/>\n".format(x, z)
                     my_rewards += '''<Marker x='{}' y='2' z='{}' reward='10' tolerance='.5'/>\n'''.format(x+0.5, z+.5)
-                # elif pattern[z][x] == 3:
-                #     my_xml += "<DrawBlock x='{}' y='4' z='{}' type='emerald_block'/>\n".format(x, z)
+                elif pattern[z][x] == 3:
+                    my_xml += "<DrawBlock x='{}' y='4' z='{}' type='emerald_block'/>\n".format(x, z)
 
         my_xml = my_xml[:-1]
 
         for z in range(len(pattern)):
-            for x in range(3):
-                if not pattern[z][x]:
-                    my_rewards += '''<Marker x='{}' y='{}' z='{}' reward='2' tolerance='1'/>\n'''.format(x+0.5, 2, z+0.5)
+            if not all(map(lambda x: x == 0, pattern[z])):
+                for x in range(3):
+                    if not pattern[z][x]:
+                        my_rewards += '''<Marker x='{}' y='{}' z='{}' reward='5' tolerance='1'/>\n'''.format(x+0.5, 2, z+0.5)
 
         for x in range(3):
             my_rewards += '''<Marker x='{}' y='{}' z='{}' reward='30' tolerance='1'/>\n'''.format(x+0.5, 2, self.track_length+0.5)
@@ -237,7 +251,7 @@ class MinecraftSurfer(gym.Env):
                             <RewardForReachingPosition>''' + \
                             my_rewards + \
                             '''</RewardForReachingPosition>
-                            <RewardForSendingCommand reward='-1'/>
+                            <RewardForSendingCommand reward='-3'/>
                             <ContinuousMovementCommands/>
                             <ObservationFromFullStats/>
                             <ObservationFromRay/>
@@ -255,7 +269,10 @@ class MinecraftSurfer(gym.Env):
                             <AgentQuitFromReachingPosition>''' + \
                                 '''<Marker x="0.5" y="2" z="{}" tolerance="1"/>
                                 <Marker x="1.5" y="2" z="{}" tolerance="1"/>
-                                <Marker x="2.5" y="2" z="{}" tolerance="1"/>'''.format(self.track_length + 0.5, self.track_length + 0.5, self.track_length + 0.5) + \
+                                <Marker x="2.5" y="2" z="{}" tolerance="1"/>
+                                <Marker x="0.5" y="2" z="{}" tolerance="1"/>
+                                <Marker x="1.5" y="2" z="{}" tolerance="1"/>
+                                <Marker x="2.5" y="2" z="{}" tolerance="1"/>'''.format(self.track_length + 0.5, self.track_length + 0.5, self.track_length + 0.5, self.track_length + 1.5, self.track_length + 1.5, self.track_length + 1.5) + \
                             '''</AgentQuitFromReachingPosition>
                         </AgentHandlers>
                     </AgentSection>
@@ -297,6 +314,7 @@ class MinecraftSurfer(gym.Env):
         allow_left = False
         allow_right = False
         ZPos = None
+        XPos = None
 
         while world_state.is_mission_running:
             time.sleep(0.1)
@@ -343,6 +361,7 @@ class MinecraftSurfer(gym.Env):
                 allow_left = observations['XPos'] < 2
                 allow_right = observations['XPos'] > 1
                 ZPos = observations["ZPos"]
+                XPos = observations["XPos"]
 
                 if observations["XPos"] > 3:
                     observations["XPos"] = 3
@@ -354,18 +373,19 @@ class MinecraftSurfer(gym.Env):
                 obs[-1] = ZPos - int(ZPos)
                 break
 
-        return obs, allow_left, allow_right, ZPos
+        return obs, allow_left, allow_right, ZPos, XPos
 
     def log_returns(self):
+        box = np.ones(self.log_frequency) / self.log_frequency
+        
+        zPositions_smooth = np.convolve(self.zPositions[1:], box, mode='same')
         plt.clf()
-        plt.plot([i for i in range(len(self.zPositions))], self.zPositions)
+        plt.plot(self.steps[1:], zPositions_smooth)
         plt.title('Z Positions')
         plt.ylabel('Z Position')
         plt.xlabel('Steps')
         plt.savefig('zPositions.png')
 
-
-        box = np.ones(self.log_frequency) / self.log_frequency
         returns_smooth = np.convolve(self.returns[1:], box, mode='same')
         plt.clf()
         plt.plot(self.steps[1:], returns_smooth)
@@ -373,6 +393,16 @@ class MinecraftSurfer(gym.Env):
         plt.ylabel('Return')
         plt.xlabel('Steps')
         plt.savefig('returns.png')
+
+        averageJumpsOverDitches_smooth = []
+        for i in range(self.log_frequency, len(self.averageJumpsOverDitches), self.log_frequency):
+            averageJumpsOverDitches_smooth.append(sum(self.averageJumpsOverDitches[i - self.log_frequency: i])/self.log_frequency)
+        plt.clf()
+        plt.plot(averageJumpsOverDitches_smooth)
+        plt.title('Jumps Over Ditches')
+        plt.ylabel('Average Jumps Over Ditches')
+        plt.xlabel('Steps')
+        plt.savefig('jumpsOverDitches.png')
 
         with open('returns.txt', 'w') as f:
             for step, value in zip(self.steps[1:], self.returns[1:]):
