@@ -53,20 +53,20 @@ The Proximal Policy Optimization (PPO) algorithm is a reinforcement learning alg
 ### Evaluation
 #### Quantitative Results
 <div style="text-align: center;">
-    <img src="../final-graphs/image6.png" width="600px"/>
+    <img src="./image6.png" width="600px"/>
     <h4>Figure 1</h4>
 </div>
 After training our agent for 140,000 steps, we can see significant improvement within the rewards graph. The rewards do not give a full picture of the agent’s performance because they do not indicate if the agent was consistently able to reach farther into the track. However, when paired with information such as the z-position, or the distance the agent traveled in each episode, the improvement within the rewards graph can be correlated with the agent’s success. It can be seen that the rewards start to plateau near 80,000 steps. This is because the agent began to successfully reach the end of the track and received the maximum reward possible.
 
 <div style="text-align: center;">
-    <img src="../final-graphs/image11.png" width="600px"/>
+    <img src="./image11.png" width="600px"/>
     <h4>Figure 2</h4>
 </div>
 
 The figure above shows that the agent was consistently improving throughout training as it was reaching farther distances on each episode. Near the end of this training session, our agent was successfully reaching the finish line of our track as can be seen by the cluster of lines that reached a z position of 100.
 
 <div style="text-align: center;">
-    <img src="../final-graphs/image10.png" width="600px"/>
+    <img src="./image10.png" width="600px"/>
     <h4>Figure 3</h4>
 </div>
 
@@ -75,7 +75,7 @@ As we started digging deeper into our project, we reran our agent to collect mor
 Another metric we recorded was the average number of times the agent decided to jump over a ditch versus strafe around a ditch. Before we added canyons our agent would only decide to jump over a ditch 20.5% of the time. However, after adding canyons to the track, the agent would jump over a ditch 56.6% of the time. The increase in the average shows that by tweaking the environment in this way, the agent learned to jump over the ditches instead of strafe around them.
 
 <div style="text-align: center;">
-    <img src="../final-graphs/image1.png" width="600px"/>
+    <img src="./image1.png" width="600px"/>
     <h4>Figure 3</h4>
 </div>
 
@@ -87,12 +87,12 @@ To determine the agent’s performance on each obstacle, we isolated each one in
 ###### Overhead Obstacle
 
 <div style="text-align: center;">
-    <img src="../final-graphs/image8.png" width="600px"/>
+    <img src="./image8.png" width="600px"/>
     <h4>Figure 4</h4>
 </div>
 
 <div style="text-align: center;">
-    <img src="../final-graphs/image3.png" width="600px"/>
+    <img src="./image3.png" width="600px"/>
     <h4>Figure 5</h4>
 </div>
 
@@ -101,12 +101,12 @@ As expected, the overhead obstacle was the easiest obstacle for the agent to lea
 ###### Ditches
 
 <div style="text-align: center;">
-    <img src="../final-graphs/image4.png" width="600px"/>
+    <img src="./image4.png" width="600px"/>
     <h4>Figure 6</h4>
 </div>
 
 <div style="text-align: center;">
-    <img src="../final-graphs/image5.png" width="600px"/>
+    <img src="./image5.png" width="600px"/>
     <h4>Figure 7</h4>
 </div>
 
@@ -116,12 +116,12 @@ The ditches were more complex to avoid as the agent had to decide between jumpin
 ##### Walls 
 
 <div style="text-align: center;">
-    <img src="../final-graphs/image7.png" width="600px"/>
+    <img src="./image7.png" width="600px"/>
     <h4>Figure 8</h4>
 </div>
 
 <div style="text-align: center;">
-    <img src="../final-graphs/image2.png" width="600px"/>
+    <img src="./image2.png" width="600px"/>
     <h4>Figure 9</h4>
 </div>
 
@@ -151,4 +151,4 @@ Please refer to the commentary in our video for qualitative insight about the pe
 - [Keras CNN](https://keras.io/api/layers/convolution_layers/)
 - [OpenAI PPO](https://openai.com/blog/openai-baselines-ppo/)
 - [PPO Algorithm](https://towardsdatascience.com/proximal-policy-optimization-tutorial-part-1-actor-critic-method-d53f9afffbf6)
-- [Thanks for all your help Kolby!](https://www.linkedin.com/in/kolby-nottingham/)
+- Thanks for all your help Kolby!
