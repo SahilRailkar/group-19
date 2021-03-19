@@ -19,7 +19,7 @@ from ray.rllib.agents import ppo
 from collections import defaultdict
 
 patterns = []
-with open('patterns-2.txt', 'r') as file:
+with open('patterns-3.txt', 'r') as file:
     for line in file:
         patterns.append(eval(line))
 
@@ -35,7 +35,7 @@ class MinecraftSurfer(gym.Env):
         self.track_length = 100
         self.height = 4
         self.max_episode_steps = 100
-        self.log_frequency = 1
+        self.log_frequency = 10
         self.action_dict = {
             0: 'strafe -1',
             1: 'strafe 0',
@@ -64,15 +64,35 @@ class MinecraftSurfer(gym.Env):
         self.returns = []
         self.steps = []
         self.zPositions = []
+        self.curXPos = 0
         self.curZPos = 0
         self.moving = False
-        self.averageJumpsOverDitches = [0]
+        # self.averageJumpsOverDitches = [0]
         self.jumpsOverDitches = 0
         self.numDitchesEncountered = 0
         self.checkCommand = False
         self.pattern = []
         self.numObstaclesEncountered = []
         self.dodgedObstacles = []
+        self.deaths = {
+            'wall': 0,
+            'ditch': 0,
+            'overhead': 0
+        }
+        self.obstacles = {
+            -15: 'wall',
+            -31: 'ditch',
+            -29: 'overhead'
+        }
+
+        self.jumpsSent = []
+        self.curNumJumps = 0
+        self.avgDistStrafed = defaultdict(float)
+        self.numFinalZPositions = defaultdict(int)
+        self.curDistStrafed = 0
+
+        self.num_episodes = 0
+        self.num_succeeded = [0]
 
     def reset(self):
         """
@@ -82,14 +102,32 @@ class MinecraftSurfer(gym.Env):
             observation: <np.array> flattened initial obseravtion
         """
 
+        if int(self.curZPos) == 99 or int(self.curZPos) == 100:
+            self.num_succeeded.append(self.num_succeeded[-1] + 1)
+        else:
+            self.num_succeeded.append(self.num_succeeded[-1])
+
+        # print(self.deaths)
+        self.num_episodes += 1
+        self.avgDistStrafed[int(self.curZPos)] += self.curDistStrafed
+        self.numFinalZPositions[int(self.curZPos)] += 1
+
+        current_step = self.steps[-1] if len(self.steps) > 0 else 0
+        if self.num_episodes % 2000 == 0:
+            self.saveAvgStrafeDist()
+            self.avgDistStrafed = defaultdict(float)
+            self.numFinalZPositions = defaultdict(float)
+            
+        self.curDistStrafed = 0
+
+        self.jumpsSent.append(self.curNumJumps)
+        self.curNumJumps = 0
+
         self.moving = False
         self.zPositions.append(self.curZPos)
-        if self.numDitchesEncountered:
-            self.averageJumpsOverDitches.append(self.jumpsOverDitches/self.numDitchesEncountered)
+
         if len(self.numObstaclesEncountered) != 0:
             self.dodgedObstacles.append(self.numObstaclesEncountered[int(self.curZPos)])
-        self.jumpsOverDitches = 0
-        self.numDitchesEncountered = 0
         self.checkCommand = False
 
         # Reset Malmo
@@ -97,7 +135,6 @@ class MinecraftSurfer(gym.Env):
 
         # Reset Variables
         self.returns.append(self.episode_return)
-        current_step = self.steps[-1] if len(self.steps) > 0 else 0
         self.steps.append(current_step + self.episode_step)
         self.episode_return = 0
         self.episode_step = 0
@@ -137,6 +174,7 @@ class MinecraftSurfer(gym.Env):
         command = "strafe " + str(action[0])
         if ((action[0] < 0 and self.allow_left) or (action[0] > 0 and self.allow_right)):
             self.agent_host.sendCommand(command)
+            self.curDistStrafed += abs(action[0])
             time.sleep(.2)
         self.agent_host.sendCommand("strafe 0")
         time.sleep(.1)
@@ -146,6 +184,7 @@ class MinecraftSurfer(gym.Env):
                 self.jumpsOverDitches += 1
                 self.checkCommand = False
             self.agent_host.sendCommand("jump 1")
+            self.curNumJumps += 1
             time.sleep(.2)
             self.agent_host.sendCommand("jump 0")
 
@@ -165,6 +204,7 @@ class MinecraftSurfer(gym.Env):
         if curZPos:
             self.curZPos = curZPos
         if curXPos:
+            self.curXPos = curXPos
             if self.obs[3 + int(curXPos)]:
                 self.checkCommand = True
                 self.numDitchesEncountered += 1
@@ -174,8 +214,20 @@ class MinecraftSurfer(gym.Env):
 
         # Get Reward
         reward = 0
+        flag = False
+        # print('Reward Count:', len(world_state.rewards))
         for r in world_state.rewards:
+            # print(r.getValue())
             reward += r.getValue()
+            if not flag:
+                if r.getValue() == -30:
+                    self.deaths['wall'] += 1
+                elif r.getValue() == -29:
+                    self.deaths['overhead'] += 1
+                elif r.getValue() == -31:
+                    self.deaths['ditch'] += 1
+                flag = True
+        # print('Total:', reward)
         self.episode_return += reward
 
         return self.obs, reward, done, dict()
@@ -191,6 +243,14 @@ class MinecraftSurfer(gym.Env):
         for ind in choice([i for i in range(len(patterns))], size=10):
             self.pattern += patterns[ind]
 
+        pattern = self.pattern.copy()
+        count = 0
+        for i, row in enumerate(pattern):
+            if row == [2, 2, 2]:
+                if count % 3 == 0:
+                    self.pattern[i] = [0, 0, 0]
+                count += 1
+
         my_rewards = ''
         for z in range(self.track_length):
             for x in range(3):
@@ -201,7 +261,7 @@ class MinecraftSurfer(gym.Env):
                     my_xml += "<DrawBlock x='{}' y='1' z='{}' type='air'/>\n".format(x, z)
                     my_xml += "<DrawBlock x='{}' y='5' z='{}' type='stained_glass' colour='MAGENTA'/>\n".format(x,z)
                 elif self.pattern[z][x] == 3:
-                    my_xml += "<DrawBlock x='{}' y='4' z='{}' type='emerald_block'/>\n".format(x, z)
+                    my_xml += "<DrawBlock x='{}' y='4' z='{}' type='diamond_block'/>\n".format(x, z)
                 if self.pattern[z][x] != 2:
                      my_xml += "<DrawBlock x='{}' y='5' z='{}' type='glass'/>\n".format(x,z)
 
@@ -210,11 +270,14 @@ class MinecraftSurfer(gym.Env):
         encountered = 0
         self.numObstaclesEncountered = []
         for z in range(len(self.pattern)):
+            for x in range(3):
+                if not self.pattern[z][x]:
+                    my_rewards += '''<Marker x='{}' y='{}' z='{}' reward='2' tolerance='1'/>\n'''.format(x+0.5, 2, z+0.5)
             self.numObstaclesEncountered.append(encountered)
             if not all(map(lambda x: x == 0, self.pattern[z])):
-                for x in range(3):
-                    if not self.pattern[z][x]:
-                        my_rewards += '''<Marker x='{}' y='{}' z='{}' reward='5' tolerance='1'/>\n'''.format(x+0.5, 2, z+0.5)
+                # for x in range(3):
+                    # if not self.pattern[z][x]:
+                    #     my_rewards += '''<Marker x='{}' y='{}' z='{}' reward='5' tolerance='1'/>\n'''.format(x+0.5, 2, z+0.5)
                 encountered += 1
 
         for x in range(3):
@@ -258,8 +321,9 @@ class MinecraftSurfer(gym.Env):
                         </AgentStart>
                         <AgentHandlers>
                             <RewardForTouchingBlockType>
+                                <Block type='diamond_block' reward='-29' />
                                 <Block type='emerald_block' reward='-15' />
-                                <Block type='bedrock' reward='-30' />
+                                <Block type='bedrock' reward='-31' />
                                 <Block type='glass' reward='-5' />
                                 <Block type='stained_glass' reward='10' />
                             </RewardForTouchingBlockType>
@@ -272,13 +336,14 @@ class MinecraftSurfer(gym.Env):
                             <ObservationFromGrid>
                                 <Grid name="floorAll" absoluteCoords="true">
                                     <min x="0" y="1" z="0"/>
-                                    <max x="2" y="4" z="99"/>
+                                    <max x="2" y="4" z="109"/>
                                 </Grid>
                             </ObservationFromGrid>
                             <AgentQuitFromReachingCommandQuota total="'''+str(self.max_episode_steps * 3)+'''" />
                             <AgentQuitFromTouchingBlockType>
                                 <Block type="emerald_block" />
                                 <Block type="bedrock" />
+                                <Block type="diamond_block" />
                             </AgentQuitFromTouchingBlockType>
                             <AgentQuitFromReachingPosition>''' + \
                                 '''<Marker x="0.5" y="2" z="{}" tolerance="1"/>
@@ -346,10 +411,10 @@ class MinecraftSurfer(gym.Env):
                 except Exception:
                     continue
                 
-                ground = grid[:300]
-                middle1 = grid[300:600]
-                middle2 = grid[600:900]
-                top = grid[900:]
+                ground = grid[:330]
+                middle1 = grid[330:660]
+                middle2 = grid[660:990]
+                top = grid[990:]
 
                 grid_index = int(observations['ZPos']) * 3
                 ground = ground[grid_index:grid_index+30]
@@ -369,7 +434,7 @@ class MinecraftSurfer(gym.Env):
                     obs[i] = x == 'emerald_block'
                 
                 for i, x in enumerate(top, i):
-                    obs[i] = x == 'emerald_block'
+                    obs[i] = x == 'diamond_block'
                 
 
                 allow_left = observations['XPos'] < 2
@@ -389,6 +454,21 @@ class MinecraftSurfer(gym.Env):
 
         return obs, allow_left, allow_right, ZPos, XPos
 
+
+    def saveAvgStrafeDist(self):
+        for i in self.avgDistStrafed:
+            self.avgDistStrafed[i] /= self.numFinalZPositions[i]        
+
+        t = [val[1] for val in list(sorted(self.avgDistStrafed.items(), key=(lambda x: x[0])))]
+
+        plt.clf()
+        plt.bar(sorted(list(self.numFinalZPositions.keys())), t)
+        plt.title('Average Distance Strafed vs. Z Position')
+        plt.ylabel('Average Distance Strafed')
+        plt.xlabel('Z Position')
+        plt.savefig('avgDistStrafedVsZPos_' + str(self.num_episodes) + '.png')
+
+
     def log_returns(self):
         box = np.ones(self.log_frequency) / self.log_frequency
         
@@ -400,6 +480,10 @@ class MinecraftSurfer(gym.Env):
         plt.xlabel('Steps')
         plt.savefig('zPositions.png')
 
+        with open('zPositions.txt', 'w') as f:
+            for step, value in zip(self.steps[1:], self.zPositions[1:]):
+                f.write("{}\t{}\n".format(step, value))
+
         returns_smooth = np.convolve(self.returns[1:], box, mode='same')
         plt.clf()
         plt.plot(self.steps[1:], returns_smooth)
@@ -408,15 +492,26 @@ class MinecraftSurfer(gym.Env):
         plt.xlabel('Steps')
         plt.savefig('returns.png')
 
-        averageJumpsOverDitches_smooth = []
-        for i in range(self.log_frequency, len(self.averageJumpsOverDitches), self.log_frequency):
-            averageJumpsOverDitches_smooth.append(sum(self.averageJumpsOverDitches[i - self.log_frequency: i])/self.log_frequency)
+        numEpisodes = [i for i in range(1, self.num_episodes + 1)]
         plt.clf()
-        plt.plot(averageJumpsOverDitches_smooth)
-        plt.title('Jumps Over Ditches')
-        plt.ylabel('Average Jumps Over Ditches')
-        plt.xlabel('Steps')
-        plt.savefig('jumpsOverDitches.png')
+        plt.plot(numEpisodes, self.num_succeeded[1:])
+        plt.title('Successful Runs')
+        plt.ylabel('Successful Runs')
+        plt.xlabel('Episodes')
+        plt.savefig('successfulRuns.png')
+
+        with open('averageJumpsOverDitches.txt', 'a') as file:
+            if self.numDitchesEncountered:
+                file.write(str(self.jumpsOverDitches / self.numDitchesEncountered) + '\n')
+        # averageJumpsOverDitches_smooth = []
+        # for i in range(self.log_frequency, len(self.averageJumpsOverDitches), self.log_frequency):
+        #     averageJumpsOverDitches_smooth.append(sum(self.averageJumpsOverDitches[i - self.log_frequency: i])/self.log_frequency)
+        # plt.clf()
+        # plt.plot(averageJumpsOverDitches_smooth)
+        # plt.title('Jumps Over Ditches')
+        # plt.ylabel('Average Jumps Over Ditches')
+        # plt.xlabel('Steps')
+        # plt.savefig('jumpsOverDitches.png')
 
         zPositions = self.zPositions[1:]
         dodgedObsToZPos = defaultdict(list)
@@ -429,8 +524,6 @@ class MinecraftSurfer(gym.Env):
             dodgedObs.append(obs)
             avgZPos.append(sum(zPos)/len(zPos))
 
-        print(dodgedObs)
-
         plt.clf()
         plt.bar(dodgedObs, avgZPos)
         plt.title('Average Z Position for Number of Obstacles Dodged')
@@ -439,8 +532,36 @@ class MinecraftSurfer(gym.Env):
         plt.xticks(dodgedObs)
         plt.savefig('dodgedObsToAvgZPos.png')
 
+        deaths = [self.deaths['wall'], self.deaths['ditch'], self.deaths['overhead']]
+        plt.clf()
+        plt.bar([1, 2, 3], deaths)
+        plt.title('Deaths Per Obstacle')
+        plt.ylabel('Number of Deaths')
+        plt.xlabel('Type of Obstacle')
+        plt.xticks([1, 2, 3], ['Wall', 'Ditch', 'Overhead Block'])
+        plt.savefig('deathsPerObstacle.png')
+
+        jumpsSent_smooth = np.convolve(self.jumpsSent[1:], box, mode='same')
+        plt.clf()
+        plt.plot(self.steps[1:], jumpsSent_smooth)
+        plt.title('Number of Jump Commands Sent')
+        plt.ylabel('Number of Jump Commands Sent')
+        plt.xlabel('Steps')
+        plt.savefig('jumpsSent.png')
+
+        with open('jumpsSent.txt', 'w') as f:
+            for step, value in zip(self.steps[1:], self.jumpsSent[1:]):
+                f.write("{}\t{}\n".format(step, value))
+
+        with open('deathsPerObstacle.txt', 'a') as file:
+            file.write(str(deaths[0]) + ' ' + str(deaths[1]) + ' ' + str(deaths[2]) + '\n')
+
         with open('returns.txt', 'w') as f:
             for step, value in zip(self.steps[1:], self.returns[1:]):
+                f.write("{}\t{}\n".format(step, value))
+
+        with open('jumpsSent.txt', 'w') as f:
+            for step, value in zip(self.num_succeeded[1:], numEpisodes):
                 f.write("{}\t{}\n".format(step, value))
 
 
@@ -457,8 +578,13 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         trainer.load_checkpoint('./model/checkpoint-' + sys.argv[1])
 
+    i = 0
     try:
         while True:
+            i += 1
             print(trainer.train())
+            if i % 50 == 0:
+                checkpoint_path = trainer.save()
+                print(checkpoint_path)
     except KeyboardInterrupt:
         trainer.save_checkpoint('./model')
