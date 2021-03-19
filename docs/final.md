@@ -55,22 +55,35 @@ The Proximal Policy Optimization (PPO) algorithm is a reinforcement learning alg
 
 ### Evaluation
 #### Quantitative Results
+
+<div style="text-align: center;">
+    <img src="./returns_final.png" width="600px"/>
+    <h4>Figure 1</h4>
+</div>
+
+<div style="text-align: center;">
+    <img src="./zPositions_final.png" width="600px"/>
+    <h4>Figure 2</h4>
+</div>
+
+We observed that the agent had constantly improved until around 80,000 steps. After that, the agent’s performance leveled off significantly. The agent appeared to struggle to get past the first one or two canyons. For this reason, we switched back to an environment without canyons to observe how the agent would perform. As you can see below, the agent performed much better and we will further discuss its performance in the next few sections.
+
 <div style="text-align: center;">
     <img src="./image6.png" width="600px"/>
-    <h4>Figure 1</h4>
+    <h4>Figure 3</h4>
 </div>
 After training our agent for 140,000 steps, we can see significant improvement within the rewards graph. The rewards do not give a full picture of the agent’s performance because they do not indicate if the agent was consistently able to reach farther into the track. However, when paired with information such as the z-position, or the distance the agent traveled in each episode, the improvement within the rewards graph can be correlated with the agent’s success. It can be seen that the rewards start to plateau near 80,000 steps. This is because the agent began to successfully reach the end of the track and received the maximum reward possible.
 
 <div style="text-align: center;">
     <img src="./image11.png" width="600px"/>
-    <h4>Figure 2</h4>
+    <h4>Figure 4</h4>
 </div>
 
 The figure above shows that the agent was consistently improving throughout training as it was reaching farther distances on each episode. Near the end of this training session, our agent was successfully reaching the finish line of our track as can be seen by the cluster of lines that reached a z position of 100.
 
 <div style="text-align: center;">
     <img src="./image10.png" width="600px"/>
-    <h4>Figure 3</h4>
+    <h4>Figure 5</h4>
 </div>
 
 As we started digging deeper into our project, we reran our agent to collect more metrics. The graph above shows the number of jump commands that the agent sent compared to the number of steps it took. An untrained model would send many jump commands because it had not learned the purpose of jumping yet while a trained model would have learned that it was disadvantageous to jump continuously (Refer to New Obstacles under Approach). The decrease in jump commands sent by the agent displays that the addition of the glass blocks and overhead obstacles was effective in teaching our agent that it only needed to jump over the ditches or canyons.
@@ -79,7 +92,7 @@ Another metric we recorded was the average number of times the agent decided to 
 
 <div style="text-align: center;">
     <img src="./image1.png" width="600px"/>
-    <h4>Figure 4</h4>
+    <h4>Figure 6</h4>
 </div>
 
 An additional metric we used to measure the performance of our agent was the average z position versus the number of obstacles the agent dodged. This metric was useful because it indicated that in the episodes where the agent made it farther down the track, it also dodged a higher number of obstacles. This means that the agent did not luck out with an easy track but the agent was able to dodge numerous obstacles and make it further down the track.
@@ -90,12 +103,12 @@ To determine the agent’s performance on each obstacle, we isolated each one in
 ##### Overhead Obstacle
 <div style="text-align: center;">
     <img src="./image8.png" width="600px"/>
-    <h4>Figure 5</h4>
+    <h4>Figure 7</h4>
 </div>
 
 <div style="text-align: center;">
     <img src="./image3.png" width="600px"/>
-    <h4>Figure 6</h4>
+    <h4>Figure 8</h4>
 </div>
 
 As expected, the overhead obstacle was the easiest obstacle for the agent to learn to avoid. The only way the agent could die was by jumping into one. The agent simply had to learn not to jump and it could easily avoid all of the overhead obstacles and consistently reached the finish line.
@@ -104,12 +117,12 @@ As expected, the overhead obstacle was the easiest obstacle for the agent to lea
 ##### Ditches
 <div style="text-align: center;">
     <img src="./image4.png" width="600px"/>
-    <h4>Figure 7</h4>
+    <h4>Figure 9</h4>
 </div>
 
 <div style="text-align: center;">
     <img src="./image5.png" width="600px"/>
-    <h4>Figure 8</h4>
+    <h4>Figure 10</h4>
 </div>
 
 The ditches were more complex to avoid as the agent had to decide between jumping over the obstacle or strafing around it. For this reason, the agent was not able to reach the end of the track as consistently as it did with the overhead obstacles. The agent took only 2,000 steps to consistently reach the finish line for the overhead obstacles. However, the agent took a little over 10,000 steps to master the environment with only ditches.
@@ -118,12 +131,12 @@ The ditches were more complex to avoid as the agent had to decide between jumpin
 ##### Walls 
 <div style="text-align: center;">
     <img src="./image7.png" width="600px"/>
-    <h4>Figure 9</h4>
+    <h4>Figure 11</h4>
 </div>
 
 <div style="text-align: center;">
     <img src="./image2.png" width="600px"/>
-    <h4>Figure 10</h4>
+    <h4>Figure 12</h4>
 </div>
 
 #### Qualitative Results
