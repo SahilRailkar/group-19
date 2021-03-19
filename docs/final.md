@@ -134,14 +134,25 @@ The GIFs on the left displays how the agent performs before training with the co
 <div style="text-align: center;">
     <img src="./untrained-overhead.gif" width="500px"/>
     <img src="./trained-overhead.gif" width="500px"/>
+    <br />
 </div>
 In the environment with only overhead obstacles, the untrained agent jumps without reason. After learning that the only way to survive in this environment is by not jumping into overhead blocks, the agent stops jumping altogether.
 
 ##### Ditches
+<div style="text-align: center;">
+    <img src="./untrained-ditch.gif" width="500px"/>
+    <img src="./trained-ditch.gif" width="500px"/>
+    <br />
+</div>
 The untrained agent is unable to time its jumps and thus, falls into the ditches. However, after training, the agent learns how to jump over the ditches and successfully reaches the finish line.
 <br />
 
 ##### Walls
+<div style="text-align: center;">
+    <img src="./untrained-wall.gif" width="500px"/>
+    <img src="./trained-wall.gif" width="500px"/>
+    <br />
+</div>
 The untrained agent randomly strafes and jumps around the environment. After it learns that it does not need to jump to avoid the obstacles in this environment, it decides to only strafe around the track.
 
 Please refer to the commentary in our video for qualitative insight about the performance of our complete model.
