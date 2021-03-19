@@ -16,14 +16,14 @@ Minecraft Surfers was modeled after the widely known mobile game Subway Surfers.
 
 #### Discrete to Continuous
 The first major change that was incorporated into Minecraft Surfers, since the status report, was the switch from a discrete agent to a continuous agent. This switch was necessary to both to increase the complexity of our project and handle the issue of not being able to strafe and move forward simultaneously. In Subway Surfers, the main player moves discretely from lane to lane. However, this behavior cannot be replicated using Malmo so we allowed the agent to freely move between lanes by enabling it to continuously send strafe commands. To keep the agent within the bounds of the track, we restricted the commands the agent could send based on its position. For example, if the agent was in the leftmost lane, it would only be allowed to send strafe commands with a nonnegative value. 
-
+  
 #### New Obstacles
 The next major change was the addition of ditches. Initially, we had planned on using the emerald blocks as hurdles which the agent would need to jump over. In our environment, touching an emerald block results in the agent’s death. If the agent jumps onto the hurdle or runs into a hurdle, it should die but if the agent successfully jumps completely over a hurdle, it should survive. However, since Minecraft agents are unable to jump over an entire block without touching it, we were unable to use blocks as hurdles. For this reason, we chose to switch from hurdles to ditches. 
 
 After the addition of ditches, the agent would constantly jump as there was no reason for it not to. To discourage the agent from jumping without reason, we added overhead obstacles throughout the track so it would be punished for jumping into one. This was not enough for the agent to learn to only jump over ditches. In order to fix this issue, we added glass blocks above all positions which did not have a ditch and stained glass blocks above positions which did. If the agent jumps and hits a glass block, it would be punished with a negative reward, but if the agent jumped and hit a stained glass block, it would receive a positive reward. 
 
 The addition of glass blocks was an overcorrection as the agent began receiving too many negative rewards. The agent found jumping to be disadvantageous and would strafe around ditches instead. To help the agent learn to jump appropriately, we randomly replaced some rows in our tracks with canyons, a full row of ditches. This would force the agent to jump as it would not be able to strafe around a canyon. 
-
+  
 #### Obstacle Density
 After the switch to continuous movements and the addition of new obstacles, the agent began to struggle due to how compactly the obstacles were placed within the track. To counteract this issue, we added density constants within our track generator. This allowed us to control the compactness of these obstacles and train our agent on a track that was more manageable.
 
