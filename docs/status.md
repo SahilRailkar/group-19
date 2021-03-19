@@ -6,7 +6,7 @@ title:  Status
 ## Status Report
 
 ### Video Summary
-<iframe width="640" height="360" src="./final.mov" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="640" height="360" src="./final.mp4" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ### Project Summary
 Our project Minecraft Surfers is modeled after the mobile game Subway Surfers where the goal is to survive as long as possible while dodging obstacles. In our version, an agent is placed on a 100 block long three lane track which has randomly placed emerald blocks as obstacles. While the agent continuously moves forward, it will be able to move left, move right, jump, or crouch to avoid obstacles in its path. For the prototype, we have limited the agent’s actions to moving left or right and limited the track size. To detect these obstacles, the agent is given a 10 x 3 grid which represents its current row and the nine rows ahead of it. The agent must strategize a path to take to successfully reach the end of the track. 
