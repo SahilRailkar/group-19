@@ -131,9 +131,7 @@ The GIFs on the left displays how the agent performs before training with the co
 <br />
 
 ##### Overhead Obstacles
-Solarized dark             |  Solarized Ocean
-:-------------------------:|:-------------------------:
-![](./untrained-overhead.gif)  |  ![](./trained-overhead.gif)
+![](./untrained-overhead.gif)  ![](./trained-overhead.gif)
 In the environment with only overhead obstacles, the untrained agent jumps without reason. After learning that the only way to survive in this environment is by not jumping into overhead blocks, the agent stops jumping altogether.
 <br />
 
