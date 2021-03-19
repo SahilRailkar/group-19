@@ -131,7 +131,7 @@ The GIFs on the left displays how the agent performs before training with the co
 <br />
 
 ##### Overhead Obstacles
-![](./untrained-overhead.gif)  ![](./trained-overhead.gif)
+![](./untrained-overhead.gif =500x)  ![](./trained-overhead.gif =500x)
 In the environment with only overhead obstacles, the untrained agent jumps without reason. After learning that the only way to survive in this environment is by not jumping into overhead blocks, the agent stops jumping altogether.
 <br />
 
