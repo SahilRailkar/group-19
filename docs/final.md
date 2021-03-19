@@ -76,38 +76,37 @@ Another metric we recorded was the average number of times the agent decided to 
 
 <div style="text-align: center;">
     <img src="./image1.png" width="600px"/>
-    <h4>Figure 3</h4>
+    <h4>Figure 4</h4>
 </div>
 
 An additional metric we used to measure the performance of our agent was the average z position versus the number of obstacles the agent dodged. This metric was useful because it indicated that in the episodes where the agent made it farther down the track, it also dodged a higher number of obstacles. This means that the agent did not luck out with an easy track but the agent was able to dodge numerous obstacles and make it further down the track.
 
-##### Obstacles
 To determine the agent’s performance on each obstacle, we isolated each one in its own environment.
 
-###### Overhead Obstacle
+##### Overhead Obstacle
 
 <div style="text-align: center;">
     <img src="./image8.png" width="600px"/>
-    <h4>Figure 4</h4>
+    <h4>Figure 5</h4>
 </div>
 
 <div style="text-align: center;">
     <img src="./image3.png" width="600px"/>
-    <h4>Figure 5</h4>
+    <h4>Figure 6</h4>
 </div>
 
 As expected, the overhead obstacle was the easiest obstacle for the agent to learn to avoid. The only way the agent could die was by jumping into one. The agent simply had to learn not to jump and it could easily avoid all of the overhead obstacles and consistently reached the finish line.
 
-###### Ditches
+##### Ditches
 
 <div style="text-align: center;">
     <img src="./image4.png" width="600px"/>
-    <h4>Figure 6</h4>
+    <h4>Figure 7</h4>
 </div>
 
 <div style="text-align: center;">
     <img src="./image5.png" width="600px"/>
-    <h4>Figure 7</h4>
+    <h4>Figure 8</h4>
 </div>
 
 The ditches were more complex to avoid as the agent had to decide between jumping over the obstacle or strafing around it. For this reason, the agent was not able to reach the end of the track as consistently as it did with the overhead obstacles. The agent took only 2,000 steps to consistently reach the finish line for the overhead obstacles. However, the agent took a little over 10,000 steps to master the environment with only ditches.
@@ -117,27 +116,26 @@ The ditches were more complex to avoid as the agent had to decide between jumpin
 
 <div style="text-align: center;">
     <img src="./image7.png" width="600px"/>
-    <h4>Figure 8</h4>
+    <h4>Figure 9</h4>
 </div>
 
 <div style="text-align: center;">
     <img src="./image2.png" width="600px"/>
-    <h4>Figure 9</h4>
+    <h4>Figure 10</h4>
 </div>
 
 
 #### Qualitative Results
 
-##### Obstacles
 The GIFs on the left displays how the agent performs before training with the corresponding obstacle while the GIFs on the right display how it performs after training.
 
-###### Overhead Obstacles
+##### Overhead Obstacles
 In the environment with only overhead obstacles, the untrained agent jumps without reason. After learning that the only way to survive in this environment is by not jumping into overhead blocks, the agent stops jumping altogether.
 
-###### Ditches
+##### Ditches
 The untrained agent is unable to time its jumps and thus, falls into the ditches. However, after training, the agent learns how to jump over the ditches and successfully reaches the finish line.
 
-###### Walls
+##### Walls
 The untrained agent randomly strafes and jumps around the environment. After it learns that it does not need to jump to avoid the obstacles in this environment, it decides to only strafe around the track.
 
 Please refer to the commentary in our video for qualitative insight about the performance of our complete model.
