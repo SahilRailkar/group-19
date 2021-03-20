@@ -66,7 +66,7 @@ The Proximal Policy Optimization (PPO) algorithm is a reinforcement learning alg
     <h4>Figure 2</h4>
 </div>
 
-We observed that the agent had constantly improved until around 80,000 steps. After that, the agent’s performance leveled off significantly. The agent appeared to struggle to get past the first one or two canyons. For this reason, we switched back to an environment without canyons to observe how the agent would perform. As you can see below, the agent performed much better and we will further discuss its performance in the next few sections.
+We observed that the agent had constantly improved until around 80,000 steps. After that, the agent’s performance leveled off significantly. The agent appeared to struggle to get past the first one or two canyons. The addition of canyons seemed to overly complicate the environment for the model. For this reason, we switched back to an environment without canyons to observe how the agent would perform. As you can see below, the agent performed much better and we will further discuss its performance in the next few sections.
 
 <div style="text-align: center;">
     <img src="./image6.png" width="600px"/>
@@ -138,6 +138,8 @@ The ditches were more complex to avoid as the agent had to decide between jumpin
     <img src="./image2.png" width="600px"/>
     <h4>Figure 12</h4>
 </div>
+
+The walls were the most difficult obstacle to dodge for the agent. The graph depicts that the agent’s performance stabilized earlier than it did with the other two obstacles. This obstacle seemed to be difficult for the agent because even when it appropriately decided to strafe to dodge a wall, it would occasionally die because it did not strafe enough and ran into the wall with its shoulder. This was confusing for the model because it was being penalized even when it chose the proper action. 
 
 #### Qualitative Results
 The GIFs on the left displays how the agent performs before training with the corresponding obstacle while the GIFs on the right display how it performs after training.
