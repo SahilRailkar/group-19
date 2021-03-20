@@ -6,7 +6,7 @@ title:  Status
 ## Final Report
 
 ### Video Summary
-<iframe width="640" height="360" src="./final.mp4" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/6B5kgKeSruA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 ### Project Summary
 Minecraft Surfers was modeled after the widely known mobile game Subway Surfers. The goal of the game and our project is to survive on the map as long as possible while avoiding obstacles. In Minecraft Surfers, an agent is placed at the start of a 100 block long three lane track which has randomly placed obstacles. These obstacles include emerald block walls, diamond block overheads, and ditches. As the agent constantly moves forward, it has the ability to dodge these obstacles by strafing left or right and jumping. The agent receives a 10 x 3 grid which is a representation of the agent’s current row and the nine rows ahead of it. Given this observation space as input, the agent must strategically dodge the obstacles it encounters and successfully reach the end of the track.
